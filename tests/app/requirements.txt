@@ -1,0 +1,3 @@
+flowpipe
+celery[redis]
+PyYAML
