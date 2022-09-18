@@ -53,14 +53,14 @@ The example app launches Celery with a Redis backend as well as Flower. The `./t
 1. Start the app:
 
 ```sh
-cd tests
+cd example
 docker-compose up
 ```
 
 2. Once the app is up and running, run the test code. Look at the comments in the python file for details.
 
 ```sh
-python ./tests/test_evaluate_graph_in_celery.py
+python ./example/test_evaluate_graph_in_celery.py
 ```
 
 3. Optionally verify the results in the browser via Flower http://localhost:5555/tasks
