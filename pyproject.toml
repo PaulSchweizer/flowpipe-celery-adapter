@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "Flowpipe Celery Adapter"
+version = "0.1.0"
+description = "Easily evaluate Flowpipe Graphs in Celery"
+authors = ["Paul Schweizer <paulschweizer@gmx.net>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+flowpipe = "^0.10.0"
+celery = { extras = ["redis"], version = "^5.2.7" }
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

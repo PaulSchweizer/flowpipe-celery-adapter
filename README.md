@@ -50,7 +50,7 @@ workflow.apply_async()
 
 The example app launches Celery with a Redis backend as well as Flower. The `./tests/test_evaluate_graph_in_celery.py` sends a Flowpipe Graph for evaluation to Celery.
 
-1. Start the app:
+1. Start the app.
 
 ```sh
 cd example
@@ -60,7 +60,9 @@ docker-compose up
 2. Once the app is up and running, run the test code. Look at the comments in the python file for details.
 
 ```sh
-python ./example/test_evaluate_graph_in_celery.py
+poetry install
+poetry run python example/test_evaluate_graph_in_celery.py
 ```
 
-3. Optionally verify the results in the browser via Flower http://localhost:5555/tasks
+3. Verify the results in the browser via Flower http://localhost:5555/tasks.
+   Look for the result of the `nodes.nodes.Multiply`, and find the value of the `result` output plug, it should be 4.
