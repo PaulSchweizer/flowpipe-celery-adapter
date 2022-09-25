@@ -62,6 +62,7 @@ def main():
     multiply = Multiply(name="Multiply", graph=graph)
     add1.outputs["result"] >> multiply.inputs["a"]
     add2.outputs["result"] >> multiply.inputs["b"]
+    print(graph)
 
     # Convert it to a Celery Workflow
     workflow = flowpipe_to_celery(celery_app, graph)

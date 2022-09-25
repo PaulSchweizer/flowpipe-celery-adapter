@@ -1,42 +1,35 @@
 from celery import Task
-from flowpipe.graph import Graph
-from flowpipe.node import INode
+from flowpipe import evaluator
 
 
 class FlowpipeTask(Task):
+    """Evaluate a Flowpipe Node in Celery."""
+
     def __init__(self, name: str, *args, **kwargs):
+        """Initialize the Task with the path to a Flowpipe Node.
+
+        Args:
+            name: The path to a Flowpipe Node, e. g. `nodes.math.Add`.
+        """
         super().__init__(*args, **kwargs)
         self.name = name
 
     def run(self, *args, **kwargs) -> dict:
-        """
+        """Deserialize Node, assign upstream data, evaluate it, return result.
+
         Args:
             args: If there are upstream nodes, they are in the first element in args
             kwargs: The serialized node dump
         """
         node_dump = kwargs
-        if isinstance(kwargs, list):
-            node_dump = kwargs[-1]
-
         upstream_nodes = []
         if args:
             upstream_nodes = args[0]
 
-        graph = Graph()
-        node = INode.from_json(node_dump)
-        node.graph = graph
+        nodes_data = {node_dump["identifier"]: node_dump}
+        for upstream_node in upstream_nodes:
+            nodes_data[upstream_node["identifier"]] = upstream_node
 
-        # 1. Get input values from connected upstream nodes from upstream nodes
-        for name, data in node_dump["inputs"].items():
-            node.inputs[name].value = data["value"]
-            for connection_node, plug in data["connections"].items():
-                connected_data = [
-                    n for n in upstream_nodes if n["identifier"] == connection_node
-                ][0]
-                node.inputs[name].value = connected_data["outputs"][plug]["value"]
+        evaluator._evaluate_node_in_process(node_dump["identifier"], nodes_data)
 
-        node.evaluate()
-
-        # TODO: Only update the serialized data
-        data = node.serialize()
-        return data
+        return nodes_data[node_dump["identifier"]]

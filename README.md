@@ -1,6 +1,6 @@
 # Flowpipe Celery Adapter
 
-Easily evaluate Flowpipe Graphs in Celery.
+![Easily evaluate Flowpipe Graphs in Celery.](https://raw.githubusercontent.com/PaulSchweizer/flowpipe-celery-adapter/main/logo.png)
 
 ## Quickstart
 
@@ -48,7 +48,7 @@ workflow.apply_async()
 
 ## Explore the example app
 
-The example app launches Celery with a Redis backend as well as Flower. The `./tests/test_evaluate_graph_in_celery.py` sends a Flowpipe Graph for evaluation to Celery.
+The example app is set up in docker. It runs Celery with a Redis backend as well as Flower. The `./tests/test_evaluate_graph_in_celery.py` sends a Flowpipe Graph for evaluation to Celery.
 
 1. Start the app.
 
@@ -66,3 +66,10 @@ poetry run python example/test_evaluate_graph_in_celery.py
 
 3. Verify the results in the browser via Flower http://localhost:5555/tasks.
    Look for the result of the `nodes.nodes.Multiply`, and find the value of the `result` output plug, it should be 4.
+
+## Run the tests
+
+```sh
+poetry install
+poetry run pytest ./tests
+```

@@ -7,7 +7,7 @@ from flowpipe import Graph, INode
 from flowpipe.node import FunctionNode
 
 UNREGISTERED_FLOWPIPE_NODE = "__UnregisteredFlowpipeNode__"
-"""Fallback for flowpipe nodes that are not registered (for whatever reason)."""
+"""Fallback for flowpipe nodes that are not registered."""
 
 
 def flowpipe_to_celery(celery_app: celery.Celery, graph: Graph) -> celery.canvas._chord:
@@ -48,7 +48,7 @@ def flowpipe_to_celery(celery_app: celery.Celery, graph: Graph) -> celery.canvas
         signatures = []
         for node in row:
             task_name = get_celery_task_name(node)
-            # Fallback if the node is not registered as a celery task yet.
+            # Fallback if the node is not registered as a Celery task yet.
             if task_name not in registered_task_names:
                 task_name = UNREGISTERED_FLOWPIPE_NODE
             signatures.append(celery_app.signature(task_name, kwargs=node.serialize()))
@@ -68,14 +68,16 @@ def get_celery_task_name(node: INode) -> str:
     """
     if isinstance(node, FunctionNode):
         return f"{node.func.__module__}.{node.class_name}"
-    return f"{node.__module__}.{node.class_name}"
+    return f"{node.__module__}.{node.__class__.__name__}"
 
 
 def register_flowpipe_nodes_as_tasks(app: celery.Celery, module: str):
-    """Register all Flowpipe Nodes from the given module as Celery task."""
-    from flowpipe_celery_adapter import FlowpipeTask
+    """Register all Flowpipe Nodes from the given module as Celery tasks."""
+    from flowpipe_celery_adapter import FlowpipeTask  # Avoiding circular import
 
     app.register_task(FlowpipeTask(UNREGISTERED_FLOWPIPE_NODE))
-    for _, obj in inspect.getmembers(sys.modules[module]):
-        if isinstance(obj, INode):
-            app.register_task(FlowpipeTask(get_celery_task_name(obj)))
+    for _, member in inspect.getmembers(sys.modules[module]):
+        if isinstance(member, INode) or (
+            inspect.isclass(member) and issubclass(member, INode)
+        ):
+            app.register_task(FlowpipeTask(get_celery_task_name(member)))
